@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+
+/* Contenedor principal estilo tarjeta */
+.mainLogin {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(52, 32, 150, 0.12);
+    border: 1px solid rgba(52, 32, 150, 0.1);
+    font-family: "DM Sans", sans-serif;
+    
+    /* Centrado absoluto perfecto */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+}
+
+.mainLogin h2 {
+    text-align: center;
+    font-weight: 700;
+    font-size: 26px;
+    margin-bottom: 25px;
+    color: rgb(52, 32, 150);
+}
+
+/* Espaciado para los campos generados por Django */
+.mainLogin form p {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    color: #444;
+}
+
+/* Inputs de texto y contraseña ocupando todo el ancho */
+.mainLogin input[type=text],
+.mainLogin input[type=password],
+.mainLogin input[type=email] {
+    width: 100% !important;
+    max-width: 100%;
+    border-radius: 8px;
+    border: 2px solid rgb(218, 220, 224);
+    height: 45px;
+    margin-top: 6px;
+    font-family: "DM Sans", sans-serif;
+    padding: 0 15px;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.mainLogin input[type=text]:focus,
+.mainLogin input[type=password]:focus,
+.mainLogin input[type=email]:focus {
+    outline: none;
+    box-shadow: 0px 0px 6px rgba(78, 49, 225, 0.3);
+    border: 2px solid rgb(52, 32, 150);
+}
+
+/* Selector universal para alinear cualquier línea que contenga un checkbox */
+.mainLogin form p, 
+.mainLogin form div {
+    display: flex;
+}
+
+/* Ajuste específico para la línea del checkbox */
+.mainLogin input[type=checkbox] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #673de6;
+    margin-right: 8px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Forzar que el párrafo del checkbox coloque el texto y la casilla en orden horizontal */
+.mainLogin form p:has(input[type=checkbox]),
+.mainLogin form p:not(:has(input[type=text], input[type=password])) {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    color: #555;
+}
+
+/* Botón de envío */
+input[type=submit] {
+    display: block;
+    width: 100%;
+    height: 45px;
+    margin-top: 25px;
+    cursor: pointer;
+    background-color: #673de6;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+    font-family: "DM Sans", sans-serif;
+    box-shadow: 0px 4px 12px rgba(103, 61, 230, 0.3);
+    transition: all 0.3s ease-in-out;
+}
+
+input[type=submit]:hover {
+    background-color: #522ec9;
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 16px rgba(103, 61, 230, 0.4);
+}
+
+/* Enlaces inferiores */
+.mainLogin p:last-of-type {
+    margin-top: 20px;
+    text-align: center;
+    display: block;
+    font-size: 14px;
+    color: #666;
+}
+
+.mainLogin p a {
+    text-decoration: none;
+    color: rgb(52, 32, 150);
+    font-weight: 600;
+}
+
+.mainLogin p a:hover {
+    text-decoration: underline;
+}

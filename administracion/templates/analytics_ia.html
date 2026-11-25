@@ -1,0 +1,99 @@
+{% extends "componentes/header.html" %}
+{% load static %}
+
+{% block title %}Analytics con IA{% endblock %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'analytics.css' %}">
+<style>
+    .admin-nav-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .admin-nav-buttons {
+        display: flex;
+        gap: 12px;
+    }
+    .nav-btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: white;
+        transition: transform 0.2s, opacity 0.2s;
+    }
+    .nav-btn:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
+    }
+    .btn-panel { background-color: #7289da; }
+    .btn-users { background-color: #3498db; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Barra de navegación rápida -->
+    <div class="admin-nav-bar">
+        <h1 style="margin: 0; font-size: 1.8rem;">🧠 Analytics con Inteligencia Artificial</h1>
+        <div class="admin-nav-buttons">
+            <a href="/Administracion/" class="nav-btn btn-panel">⚙️ Panel Admin</a>
+            <a href="{% url 'gestion_usuarios' %}" class="nav-btn btn-users">👥 Gestionar Usuarios</a>
+        </div>
+    </div>
+    
+    <div class="dashboard">
+        <!-- Métricas Principales -->
+        <div class="metricas-grid">
+            <div class="metrica-card">
+                <h3>📊 Preguntas este Mes</h3>
+                <p class="numero">{{ analytics_data.total_preguntas_mes }}</p>
+            </div>
+            <div class="metrica-card">
+                <h3>⏱️ Preguntas sin Respuesta</h3>
+                <p class="numero">{{ analytics_data.preguntas_sin_respuesta }}</p>
+            </div>
+            <div class="metrica-card">
+                <h3>⚡ Tiempo Promedio Respuesta</h3>
+                <p class="numero">{{ analytics_data.tiempo_promedio_respuesta }}</p>
+            </div>
+        </div>
+
+        <!-- Tendencias por Categoría -->
+        <div class="categorias-section">
+            <h3>🎯 Tendencias por Categoría (IA)</h3>
+            <div class="categorias-grid">
+                {% for categoria, cantidad in analytics_data.categorias_tendencia.items %}
+                <div class="categoria-card">
+                    <span class="categoria-nombre">{{ categoria|title }}</span>
+                    <span class="categoria-cantidad">{{ cantidad }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Usuarios Más Activos -->
+        <div class="usuarios-section">
+            <h3>👥 Usuarios Más Activos</h3>
+            <div class="usuarios-list">
+                {% for usuario in analytics_data.usuarios_activos %}
+                <div class="usuario-card">
+                    <span>{{ usuario.usuario }}</span>
+                    <span class="preguntas-count">{{ usuario.num_preguntas }} preguntas</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

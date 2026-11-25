@@ -1,0 +1,148 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'estiloHeader.css' %}?v=20261011-footer">
+    <title>{% block title %}Call Center Gamer{% endblock %}</title>
+    {% block links %}{% endblock %}
+</head>
+<body>
+    <nav class="MainNav">
+        <div id="NavbarIzq">
+            <a href="{% if user.is_authenticated %}{% if user.admin or user.tecnico %}/Administracion/{% else %}/Inicio/{{ user.id }}/{% endif %}{% else %}/{% endif %}" id="logo">
+                <i class="fas fa-gamepad"></i> CallCenterGamer
+            </a>
+            <ul>
+            {% if request.user.is_authenticated %}
+                {% if request.user.admin or request.user.tecnico %}
+                    <li><a href="/Administracion/">Panel Admin</a></li>
+                {% else %}
+                    <li><a href="/Inicio/{{ request.user.id }}">Mi Inicio</a></li>
+                {% endif %}
+            {% else %}
+                <li><a href="/">Inicio</a></li>
+            {% endif %}
+            </ul>
+        </div>
+
+        <div id="NavbarDer">
+            <ul>
+                {% if user.is_authenticated %}
+                    <li>
+                        <span style="color: white; margin-right: 15px;">
+                            <i class="fas fa-user"></i> {{ user.usuario }}
+                            {% if user.admin %}
+                                <span style="background: #ff6b6b; padding: 2px 5px; border-radius: 3px; font-size: 0.8em; margin-left: 5px;">Admin</span>
+                            {% elif user.tecnico %}
+                                <span style="background: #4ecdc4; padding: 2px 5px; border-radius: 3px; font-size: 0.8em; margin-left: 5px;">Técnico</span>
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li>
+                        <form method="post" action="{% url 'Logout' %}" class="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="/Login/"><i class="fas fa-sign-in-alt"></i> Ingresar</a></li>
+                    <li><a href="/Register/"><i class="fas fa-user-plus"></i> Registrarse</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <section class="footer-section">
+                <h2>Contacto</h2>
+                <p>Instagram</p>
+                <p>Facebook</p>
+            </section>
+            <section class="footer-section">
+                <h2>Ubicación</h2>
+                <p>Av. Américo Vespucio 974, Maipú, Región Metropolitana</p>
+            </section>
+            <p class="footer-copyright">© 2026-2030 Call Center Gamer. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    {% block js %}{% endblock %}
+
+    <style>
+        .logout-form { display: inline; margin: 0; padding: 0; }
+        .logout-btn {
+            background: none; border: none; color: white; cursor: pointer;
+            padding: 8px 12px; border-radius: 4px; transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .logout-btn:hover { background-color: rgba(255, 255, 255, 0.1); color: #ff6b6b; }
+        #NavbarDer ul { display: flex; align-items: center; gap: 10px; }
+        #NavbarDer ul li { display: flex; align-items: center; }
+
+        /* --- ESTILOS PARA EL FOOTER RETRÁCTIL / FLOTANTE --- */
+        .site-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            /* Se esconde casi por completo, dejando visibles solo 12 píxeles en la parte inferior */
+            transform: translateY(calc(100% - 12px));
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #1a1a1e; /* Color de fondo oscuro acorde al estilo gamer */
+            color: #f6f6f7;
+            border-top: 2px solid #7289da; /* Un borde sutil para que se distinga el "bordesito" */
+            box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            padding: 20px 0;
+        }
+
+        /* Cuando el cursor se coloca encima del footer, se eleva mostrando todo su contenido */
+        .site-footer:hover {
+            transform: translateY(0);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            padding: 0 20px;
+        }
+
+        .footer-section h2 {
+            font-size: 1.1rem;
+            color: #7289da;
+            margin-bottom: 8px;
+        }
+
+        .footer-section p {
+            margin: 4px 0;
+            font-size: 0.95rem;
+            color: #b9bbbe;
+        }
+
+        .footer-copyright {
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            color: #72767d;
+            border-top: 1px solid #2f3136;
+            padding-top: 10px;
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% extends "componentes/header.html" %}
+{% load static %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'login.css' %}">
+{% endblock %}
+
+{% block title %} Iniciar sesión {% endblock %}
+
+{% block content %}
+<div class="mainLogin">
+    {% if user.is_authenticated %}
+    <script>window.location.href = "{% url 'inicio' user.id %}";</script>
+    {% else %}
+    <h2>Iniciar sesión</h2>
+    <form id="Formulario" method="POST">
+        {% csrf_token %}
+        {{ form }}
+        <input value="Iniciar Sesion" type="submit">
+    </form>
+    <p>¿Aún no tienes cuenta? <a href="{% url 'Register' %}">Regístrate ya!</a></p>
+    {% endif %}
+</div>
+{% endblock %}

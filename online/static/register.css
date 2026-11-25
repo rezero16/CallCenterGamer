@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+
+/* Contenedor principal en forma de tarjeta elegante y centrada */
+.MainRegister {
+    width: 100%;
+    max-width: 450px;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(52, 32, 150, 0.12);
+    border: 1px solid rgba(52, 32, 150, 0.1);
+    font-family: "DM Sans", sans-serif;
+    
+    /* Centrado perfecto en la pantalla */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+}
+
+.MainRegister h2 {
+    text-align: center;
+    font-weight: 700;
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: rgb(52, 32, 150);
+}
+
+/* Estilo para los párrafos y etiquetas que genera Django por defecto */
+.MainRegister form p {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    color: #444;
+}
+
+/* Forzar a que todos los inputs del formulario ocupen todo el ancho de la tarjeta de forma ordenada */
+.MainRegister input[type=text],
+.MainRegister input[type=email],
+.MainRegister input[type=password],
+.MainRegister input[type=number] {
+    width: 100% !important;
+    max-width: 100%;
+    border-radius: 8px;
+    border: 2px solid rgb(218, 220, 224);
+    height: 45px;
+    margin-top: 6px;
+    font-family: "DM Sans", sans-serif;
+    padding: 0 15px;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+/* Efecto focus limpio y profesional */
+.MainRegister input[type=text]:focus,
+.MainRegister input[type=email]:focus,
+.MainRegister input[type=password]:focus,
+.MainRegister input[type=number]:focus {
+    outline: none;
+    box-shadow: 0px 0px 6px rgba(78, 49, 225, 0.3);
+    border: 2px solid rgb(52, 32, 150);
+}
+
+/* Botón de registro estilizado */
+input[type=submit] {
+    display: block;
+    width: 100%;
+    height: 45px;
+    margin-top: 25px;
+    cursor: pointer;
+    background-color: #673de6;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+    font-family: "DM Sans", sans-serif;
+    box-shadow: 0px 4px 12px rgba(103, 61, 230, 0.3);
+    transition: all 0.3s ease-in-out;
+}
+
+input[type=submit]:hover {
+    background-color: #522ec9;
+    transform: translateY(-2px);
+    box-shadow: 0px 6px 16px rgba(103, 61, 230, 0.4);
+}
+
+/* Enlace inferior de inicio de sesión */
+.MainRegister p:last-of-type {
+    margin-top: 20px;
+    text-align: center;
+    display: block;
+    font-size: 14px;
+    color: #666;
+}
+
+.MainRegister p a {
+    text-decoration: none;
+    color: rgb(52, 32, 150);
+    font-weight: 600;
+}
+
+.MainRegister p a:hover {
+    text-decoration: underline;
+}

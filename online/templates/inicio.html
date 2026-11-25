@@ -1,0 +1,466 @@
+{% extends "componentes/header.html" %}
+{% load static %}
+{% block links%}
+<link rel="stylesheet" href="{% static 'inicio.css' %}">
+{% endblock %}
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %} Inicio {% endblock %}
+</head>
+
+<body>
+    {% block content %}
+    {% if user.id == id and user.admin == False and user.tecnico == False %}
+    <div class="MainTodo">
+        <div class="MainPreguntar">
+            <!-- Secciones arriba del apartado de IA -->
+            <div class="secciones-superiores">
+                <!-- Sección izquierda: donde se hacen las preguntas -->
+                <div class="seccion-izquierda">
+                    <!-- Formulario para crear nueva pregunta -->
+                    <div class="form-crear-pregunta">
+                        <div class="seccion-header">
+                            <h2>✍️ Crear pregunta</h2>
+                            <span class="seccion-subtitulo">Cuéntanos tu problema</span>
+                        </div>
+                        <form method="post" class="form-pregunta">
+                            {% csrf_token %}
+                            {{ form.Usuario }}
+                            {{ form.Fecha_creacion }}
+                            <div class="campo">
+                                <label for="{{ form.Titulo.id_for_label }}">{{ form.Titulo.label }}</label>
+                                {{ form.Titulo }}
+                                {% if form.Titulo.errors %}
+                                <span class="error-campo">{{ form.Titulo.errors|striptags }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="campo">
+                                <label for="{{ form.Pregunta.id_for_label }}">{{ form.Pregunta.label }}</label>
+                                {{ form.Pregunta }}
+                                {% if form.Pregunta.errors %}
+                                <span class="error-campo">{{ form.Pregunta.errors|striptags }}</span>
+                                {% endif %}
+                            </div>
+                            <button type="submit" class="btn-pregunta">
+                                <i class="fas fa-plus"></i> Nueva pregunta
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sección derecha: historial de esas preguntas -->
+                <div class="seccion-derecha">
+                    <div class="preguntas-historial">
+                        <div class="preguntas-header">
+                            <h2>📋 Historial de preguntas</h2>
+                            <span class="preguntas-count">
+                                {{ Preguntas|length }} pregunta{{ Preguntas|length|pluralize }}
+                            </span>
+                        </div>
+                        <div id="lista-preguntas">
+                            {% for pregunta in Preguntas %}
+                            <div class="pregunta-item">
+                                <a href="/Respuesta/{{ user.id }}/{{pregunta.idPregunta}}/" class="pregunta-enlace">
+                                    <h3>💭 {{pregunta.Titulo}}</h3>
+                                    <p class="pregunta-fecha">{{pregunta.Fecha_creacion|date:"d/m/Y H:i"}}</p>
+                                </a>
+                            </div>
+                            {% empty %}
+                            <p class="chat-vacio">No hay preguntas registradas</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-container">
+                <!-- Historial de conversaciones IA (lado izquierdo) -->
+                <aside class="chat-sidebar">
+                    <div class="chat-sidebar-header">
+                        <h4>💬 Historial IA</h4>
+                        <a href="?nueva=1" class="nueva-conversacion">
+                            <i class="fas fa-plus"></i> Nueva conversación
+                        </a>
+                    </div>
+                    <div id="historial-lista" class="historial-lista">
+                        {% for conversacion in conversaciones_ia %}
+                        <a class="historial-item {% if conversacion_actual and conversacion.idConversacion == conversacion_actual.idConversacion %}activo{% endif %}"
+                           data-conversacion-id="{{ conversacion.idConversacion }}"
+                           href="?conversacion={{ conversacion.idConversacion }}">
+                            <span class="historial-titulo">{{ conversacion.Titulo }}</span>
+                            <small>{{ conversacion.Fecha_actualizacion|date:"d/m H:i" }}</small>
+                        </a>
+                        {% empty %}
+                        <p class="chat-vacio">No hay conversaciones previas</p>
+                        {% endfor %}
+                    </div>
+                </aside>
+
+                <!-- Área principal de mensajes de IA -->
+                <section class="chat-main">
+                    <div id="mensajes-chat"
+                         class="chat-mensajes"
+                         data-conversacion-id="{{ conversacion_actual.idConversacion|default:'' }}">
+                        {% for mensaje in mensajes_ia %}
+                        <div class="mensaje {% if mensaje.Rol == 'usuario' %}mensaje-usuario{% else %}mensaje-ia{% endif %}">
+                            <strong>{% if mensaje.Rol == 'usuario' %}Tú{% else %}IA{% endif %}:</strong>
+                            <span>{{ mensaje.Contenido|linebreaksbr }}</span>
+                        </div>
+                        {% empty %}
+                        <p class="chat-vacio">Escribe un mensaje para comenzar</p>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- Input de mensaje -->
+                <div class="chat-input">
+                    <form id="form-mensaje" method="post" action="{% url 'chat_ia' user.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="conversacion_id" id="conversacion_id"
+                               value="{{ conversacion_actual.idConversacion|default:'' }}">
+                        <input type="text" name="mensaje" id="id_mensaje"
+                               placeholder="Escribe tu mensaje aquí..." autocomplete="off">
+                        <button type="submit">
+                            <i class="fas fa-paper-plane"></i> Enviar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    {% if user.admin or user.tecnico %}
+    <script>window.location.href = '/Administracion/';</script>
+    {% endif %}
+    <script>window.location.href = '/Inicio/{{ user.id }}/';</script>
+    {% endif %}
+    {% endblock %}
+
+    {% block js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('form-mensaje');
+            if (!form) return;
+
+            const input = document.getElementById('id_mensaje');
+            const botonEnviar = form.querySelector('button[type="submit"]');
+            const mensajesChat = document.getElementById('mensajes-chat');
+            const historialLista = document.getElementById('historial-lista');
+            const conversacionIdInput = document.getElementById('conversacion_id');
+            const chatUrl = "{% url 'chat_ia' user.id %}";
+
+            function getCSRFToken() {
+                const tokenInput = form.querySelector('[name="csrfmiddlewaretoken"]');
+                if (tokenInput) return tokenInput.value;
+
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name === 'csrftoken') return value;
+                }
+                return '';
+            }
+
+            function quitarPlaceholder() {
+                const vacio = mensajesChat.querySelector('.chat-vacio');
+                if (vacio) vacio.remove();
+            }
+
+            function crearMensaje(rol) {
+                quitarPlaceholder();
+
+                const div = document.createElement('div');
+                const esUsuario = rol === 'usuario';
+                const esError = rol === 'error';
+
+                div.className = 'mensaje ' + (
+                    esUsuario ? 'mensaje-usuario' :
+                    esError ? 'mensaje-error' : 'mensaje-ia'
+                );
+
+                const etiqueta = document.createElement('strong');
+                etiqueta.textContent = esUsuario ? 'Tú' : (esError ? 'Error' : 'IA');
+
+                const contenido = document.createElement('span');
+
+                div.appendChild(etiqueta);
+                div.appendChild(contenido);
+                mensajesChat.appendChild(div);
+                mensajesChat.scrollTop = mensajesChat.scrollHeight;
+
+                return { div, etiqueta, contenido };
+            }
+
+            function agregarMensaje(rol, texto) {
+                const mensaje = crearMensaje(rol);
+                mensaje.contenido.textContent = texto;
+            }
+
+            function marcarMensajeComoError(mensaje, texto) {
+                mensaje.div.className = 'mensaje mensaje-error';
+                mensaje.etiqueta.textContent = 'Error';
+                mensaje.contenido.textContent = texto;
+                mensajesChat.scrollTop = mensajesChat.scrollHeight;
+            }
+
+            function actualizarHistorial(conversacionId, titulo) {
+                if (!conversacionId) return;
+
+                quitarPlaceholderHistorial();
+
+                let item = historialLista.querySelector(
+                    '.historial-item[data-conversacion-id="' + conversacionId + '"]'
+                );
+
+                if (!item) {
+                    item = document.createElement('a');
+                    item.className = 'historial-item';
+                    item.dataset.conversacionId = conversacionId;
+                    item.href = '?conversacion=' + encodeURIComponent(conversacionId);
+
+                    const tituloItem = document.createElement('span');
+                    tituloItem.className = 'historial-titulo';
+                    tituloItem.textContent = titulo;
+
+                    const fechaItem = document.createElement('small');
+                    fechaItem.textContent = 'Ahora';
+
+                    item.appendChild(tituloItem);
+                    item.appendChild(fechaItem);
+
+                    const primero = historialLista.querySelector('.historial-item');
+                    if (primero) {
+                        historialLista.insertBefore(item, primero);
+                    } else {
+                        historialLista.appendChild(item);
+                    }
+                } else {
+                    const tituloItem = item.querySelector('.historial-titulo');
+                    if (tituloItem) tituloItem.textContent = titulo;
+                }
+
+                historialLista.querySelectorAll('.historial-item').forEach(function(elemento) {
+                    elemento.classList.remove('activo');
+                });
+                item.classList.add('activo');
+            }
+
+            function quitarPlaceholderHistorial() {
+                const vacio = historialLista.querySelector('.chat-vacio');
+                if (vacio) vacio.remove();
+            }
+
+            function actualizarConversacion(conversacionId, titulo) {
+                if (!conversacionId) return;
+                conversacionIdInput.value = conversacionId;
+                actualizarHistorial(conversacionId, titulo);
+                window.history.replaceState(
+                    {},
+                    '',
+                    '?conversacion=' + encodeURIComponent(conversacionId)
+                );
+            }
+
+            // Inicializar preguntas highlight
+            function inicializarPreguntas() {
+                const items = document.querySelectorAll('.pregunta-item');
+                items.forEach(function(item) {
+                    item.addEventListener('click', function(e) {
+                        // El enlace ya lleva al lugar correcto, solo resaltamos visualmente
+                        items.forEach(function(i) { i.classList.remove('seleccionado'); });
+                        item.classList.add('seleccionado');
+                    });
+                });
+            }
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const mensaje = input.value.trim();
+                if (!mensaje) return;
+
+                agregarMensaje('usuario', mensaje);
+                input.value = '';
+                input.disabled = true;
+                if (botonEnviar) botonEnviar.disabled = true;
+
+                const burbujaIA = crearMensaje('ia');
+                burbujaIA.contenido.textContent = 'Escribiendo...';
+
+                const parametros = new URLSearchParams();
+                parametros.append('mensaje', mensaje);
+
+                const conversacionId = conversacionIdInput.value.trim();
+                if (conversacionId) {
+                    parametros.append('conversacion_id', conversacionId);
+                }
+
+                const abortController = new AbortController();
+                const timeoutId = setTimeout(function() {
+                    abortController.abort();
+                }, 20000);
+
+                let respuestaCompleta = '';
+                let streamFinalizado = false;
+
+                function agregarFragmento(texto) {
+                    if (!texto) return;
+                    respuestaCompleta += texto;
+                    burbujaIA.contenido.textContent = respuestaCompleta;
+                    mensajesChat.scrollTop = mensajesChat.scrollHeight;
+                }
+
+                function procesarEvento(bloque) {
+                    let evento = 'message';
+                    const datos = [];
+
+                    bloque.split('\n').forEach(function(linea) {
+                        if (linea.startsWith('event:')) {
+                            evento = linea.slice(6).trim();
+                        } else if (linea.startsWith('data:')) {
+                            datos.push(linea.slice(5).trimStart());
+                        }
+                    });
+
+                    if (!datos.length) return;
+
+                    let payload = null;
+                    try {
+                        payload = JSON.parse(datos.join('\n'));
+                    } catch (parseError) {
+                        return;
+                    }
+
+                    if (evento === 'meta') {
+                        actualizarConversacion(
+                            payload.conversacion_id,
+                            payload.titulo
+                        );
+                    } else if (evento === 'delta') {
+                        agregarFragmento(payload.texto || '');
+                    } else if (evento === 'done') {
+                        streamFinalizado = true;
+                        if (payload.respuesta) {
+                            respuestaCompleta = payload.respuesta;
+                            burbujaIA.contenido.textContent = respuestaCompleta;
+                        }
+                        actualizarConversacion(
+                            payload.conversacion_id,
+                            payload.titulo
+                        );
+                    } else if (evento === 'error') {
+                        throw new Error(
+                            payload.error ||
+                            'No se pudo completar la respuesta.'
+                        );
+                    }
+                }
+
+                try {
+                    const respuesta = await fetch(chatUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'text/event-stream',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': getCSRFToken()
+                        },
+                        body: parametros,
+                        signal: abortController.signal
+                    });
+
+                    if (!respuesta.ok) {
+                        let data = null;
+                        try {
+                            data = await respuesta.json();
+                        } catch (parseError) {
+                            data = null;
+                        }
+                        throw new Error(
+                            (data && data.error) ||
+                            'No se pudo obtener respuesta del asistente.'
+                        );
+                    }
+
+                    if (
+                        !respuesta.body ||
+                        typeof respuesta.body.getReader !== 'function'
+                    ) {
+                        throw new Error(
+                            'Tu navegador no soporte respuestas en streaming.'
+                        );
+                    }
+
+                    const lector = respuesta.body.getReader();
+                    const decoder = new TextDecoder('utf-8');
+                    let buffer = '';
+
+                    while (true) {
+                        const lectura = await lector.read();
+                        if (lectura.done) break;
+
+                        buffer += decoder.decode(lectura.value, { stream: true });
+                        const bloques = buffer.split('\n\n');
+                        buffer = bloques.pop();
+
+                        for (const bloque of bloques) {
+                            if (bloque.trim()) procesarEvento(bloque);
+                        }
+                    }
+
+                    buffer += decoder.decode();
+                    if (buffer.trim()) procesarEvento(buffer);
+
+                    if (!streamFinalizado) {
+                        throw new Error(
+                            respuestaCompleta.trim()
+                                ? 'La respuesta se interrumpió antes de terminar.'
+                                : 'No se pudo completar la respuesta.'
+                        );
+                    }
+                } catch (error) {
+                    const mensajeError = error.name === 'AbortError'
+                        ? 'La respuesta tardó demasiado. Intenta nuevamente.'
+                        : (error.message || 'Error de conexión con el servidor.');
+
+                    if (respuestaCompleta.trim()) {
+                        burbujaIA.contenido.textContent = respuestaCompleta;
+                        agregarMensaje('error', mensajeError);
+                    } else {
+                        marcarMensajeComoError(burbujaIA, mensajeError);
+                    }
+                } finally {
+                    clearTimeout(timeoutId);
+                    input.disabled = false;
+                    if (botonEnviar) botonEnviar.disabled = false;
+                    input.focus();
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!botonEnviar || !botonEnviar.disabled) {
+                        if (form.requestSubmit) {
+                            form.requestSubmit();
+                        } else {
+                            form.dispatchEvent(new Event('submit', {cancelable: true, bubbles: true}));
+                        }
+                    }
+                }
+            });
+
+            // Inicializar preguntas al cargar
+            inicializarPreguntas();
+        });
+    </script>
+    {% endblock %}
+</body>
+
+</html>
